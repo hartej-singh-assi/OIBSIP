@@ -1,34 +1,83 @@
-import java.util.Scanner;
+import java.util.Random;
 
-public class NumberGuessingGame {
-    public static void main(String[] args) {
-        int randomNumber = (int)(Math.random() * 100) + 1;
-        int guess;
-        int numberOfGuesses = 0;
-        int score = 100;
-        boolean won = false;
-        Scanner input = new Scanner(System.in);
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
-        System.out.println("Welcome to the Number Guessing Game!");
+public class NumberGuessingGame extends Application {
+    public static void main(String[] args) throws Exception {
+        launch(args);
+    }
 
-        while (!won) {
-            System.out.print("Enter your guess (1-100): ");
-            guess = input.nextInt();
-            numberOfGuesses++;
-            
+    private int randomNumber;
+    private int numGuesses = 0;
+    private int maxGuesses = 8;
+    private int score = 0;
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        Label label = new Label("Guess a number between 1 and 100:");
+        TextField textField = new TextField();
+        Button submit = new Button("Submit");
+        Button hint = new Button("Hint");
+        Label scoreLbl = new Label("Score: " + score);
+        
+        submit.setOnAction(event -> {
+            int guess = Integer.parseInt(textField.getText());
             if (guess == randomNumber) {
-                won = true;
-                System.out.println("You won! The number was " + randomNumber);
-                System.out.println("It took you " + numberOfGuesses + " guesses.");
-                System.out.println("Your score is " + score);
+                label.setText("You guessed the number in " + numGuesses + " attempts!\n" + "The number is " + randomNumber + "\n" + "Thank you for playing!");
+                textField.setDisable(true);
+                submit.setDisable(true);
+                hint.setDisable(true);
+                score++;
+                scoreLbl.setText("Score: " + score);
             } else if (guess < randomNumber) {
-                System.out.println("Too low! Guess again.");
-                score = score -10;
+                label.setText("Too low! Guess again:");
+                numGuesses++;
+                if (numGuesses >= maxGuesses) {
+                    label.setText("You have reached the maximum number of guesses.\n" + "The number is " + randomNumber + "\n" + "Thank you for playing!");
+                    textField.setDisable(true);
+                    submit.setDisable(true);
+                    hint.setDisable(true);
+                }
             } else {
-                System.out.println("Too high! Guess again.");
-                score = score - 10;
+                label.setText("Too high! Guess again:");
+                numGuesses++;
+                if (numGuesses >= maxGuesses) {
+                    label.setText("You have reached the maximum number of guesses.\n" + "The number is " + randomNumber + "\n" + "Thank you for playing!");
+                    textField.setDisable(true);
+                    submit.setDisable(true);
+                    hint.setDisable(true);
+                }
             }
-            
-        }
+        });
+
+        hint.setOnAction(event -> {
+            if (randomNumber % 2 == 0) {
+                label.setText("Hint: The number is even.");
+            } else {
+                label.setText("Hint: The number is odd.");
+            }
+        });
+
+        HBox hBox = new HBox(20, submit, hint, scoreLbl);
+        hBox.setAlignment(Pos.CENTER);
+         VBox vBox = new VBox(20, label, textField, submit, hint, scoreLbl);
+         vBox.setPadding(new Insets(20));
+        vBox.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(vBox);
+
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Number Guessing Game");
+        primaryStage.show();
+        randomNumber = new Random().nextInt(100) + 1;
     }
 }
